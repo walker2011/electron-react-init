@@ -1,56 +1,39 @@
 import { ConfigProvider, Layout, Select } from 'antd';
-import enUS from 'antd/es/locale/en_US';
-import zhCN from 'antd/es/locale/zh_CN';
-import { Locale } from 'antd/lib/locale-provider';
-import moment from 'moment';
-import { useEffect, useState } from 'react';
+import { useContext } from 'react';
 import { Content, Header } from 'antd/es/layout/layout';
 import UploadComponent from './upload/UploadComponent';
-import cv, { Mat } from '@epascal/opencv-ts';
+import { AppContext } from '../../AppContext';
+import { EN, LocaleSummary, ZH_CN } from '../../translate/Translate';
 
 
 const { Option } = Select;
-moment.locale('zhCN');
-
-const str2Local: { [key: string]: Locale } = {
-    zhCN,
-    enUS
-};
-
-const str2MomentLocal: { [key: string]: string } = {
-    zhCN: 'zh-cn',
-    enUS: 'en'
-};
-
-const str2Key: { [key: string]: string } = {
-    zhCN: '中文',
-    enUS: 'English'
-};
 
 export default function Home() {
-    const [localeStr, setLocalStr] = useState<string>('zhCN');
+    const { userData, setUserDataInternal } = useContext(AppContext);
 
     const onSelectLocal = (value: string) => {
-        setLocalStr(value);
-        moment.locale(str2MomentLocal[value]);
+        setUserDataInternal({
+            ...userData,
+            localeName: value
+        });
     };
 
     return (
-        <ConfigProvider locale={str2Local[localeStr]}>
+        <ConfigProvider locale={LocaleSummary[userData.localeName].locale}>
             <Layout style={{
                 minHeight: '100vh',
                 minWidth: '100vh'
             }}>
                 <Header>
                     <Select
-                        defaultValue={str2Key[localeStr]}
+                        defaultValue={userData.localeName}
                         style={{
                             width: 120
                         }}
                         onChange={onSelectLocal}
                     >
-                        <Option value='zhCN'>{str2Key.zhCN}</Option>
-                        <Option value='enUS'>{str2Key.enUS}</Option>
+                        <Option value={ZH_CN} key={ZH_CN}>{LocaleSummary[ZH_CN].locale}</Option>
+                        <Option value={EN} key={EN}>{LocaleSummary[EN].locale}</Option>
                     </Select>
                 </Header>
                 <Content>
