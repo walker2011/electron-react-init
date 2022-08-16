@@ -1,9 +1,8 @@
-import { useContext, useState } from 'react';
+import { Dispatch, useState } from 'react';
 import { message, Upload } from 'antd';
 import { RcFile } from 'antd/es/upload';
 
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
-import { AppContext } from '../../../AppContext';
 
 const getBase64 = (img: RcFile, callback: (url: string) => void) => {
     const reader = new FileReader();
@@ -11,10 +10,11 @@ const getBase64 = (img: RcFile, callback: (url: string) => void) => {
     reader.readAsDataURL(img);
 };
 
-export default function UploadComponent() {
+export default function UploadComponent({
+                                            imageUrl,
+                                            setImageUrl
+                                        }: { imageUrl: string | undefined, setImageUrl: Dispatch<string> }) {
     const [loading, setLoading] = useState(false);
-    const [imageUrl, setImageUrl] = useState<string>();
-    const { userData, setUserDataInternal } = useContext(AppContext);
 
     const beforeUpload = (file: RcFile) => {
         if (!(file.type === 'image/jpeg' || file.type === 'image/png')) {
@@ -38,7 +38,6 @@ export default function UploadComponent() {
 
     return (
         <Upload
-            // locale={LocaleSummary[userData.localeName].locale}
             name='avatar'
             listType='picture-card'
             className='avatar-uploader'

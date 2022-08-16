@@ -1,10 +1,9 @@
 import { ConfigProvider, Layout, Select } from 'antd';
 import { useContext } from 'react';
 import { Content, Header } from 'antd/es/layout/layout';
-import UploadComponent from './upload/UploadComponent';
 import { AppContext } from '../../AppContext';
 import { EN, LocaleSummary, ZH_CN } from '../../translate/Translate';
-
+import ImagePageContainer from './image/ImagePageContainer';
 
 const { Option } = Select;
 
@@ -32,12 +31,12 @@ export default function Home() {
                         }}
                         onChange={onSelectLocal}
                     >
-                        <Option value={ZH_CN} key={ZH_CN}>{LocaleSummary[ZH_CN].locale}</Option>
-                        <Option value={EN} key={EN}>{LocaleSummary[EN].locale}</Option>
+                        <Option value={ZH_CN} key={ZH_CN}>{LocaleSummary[ZH_CN].label}</Option>
+                        <Option value={EN} key={EN}>{LocaleSummary[EN].label}</Option>
                     </Select>
                 </Header>
                 <Content>
-                    <UploadComponent />
+                    <ImagePageContainer />
                 </Content>
             </Layout>
         </ConfigProvider>
