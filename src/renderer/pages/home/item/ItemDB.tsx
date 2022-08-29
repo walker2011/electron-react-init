@@ -4,7 +4,7 @@ import { Col, Row, Space } from 'antd';
 
 
 const ItemDB = () => {
-    const [categoryDataSource, setCategoryDataSource] = useState<CategoryDataSourceType[]>([]);
+    const [categoryDataSource, setCategoryDataSource] = useState<CategoryDataSourceType[]>([{category:1,desc:"1325"}]);
     const [subCategoryDataSource, setSubCategoryDataSource] = useState<CategoryDataSourceType[]>([]);
     return (
         <Row wrap={false} gutter={16}>

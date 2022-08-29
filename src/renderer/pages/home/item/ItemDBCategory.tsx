@@ -1,9 +1,11 @@
-import { ProForm, ProFormText, ProList } from '@ant-design/pro-components';
-import React, { Dispatch, useCallback, useState } from 'react';
-import { Button, message, Modal } from 'antd';
+import { ModalForm, ProFormText, ProList } from '@ant-design/pro-components';
+import React, { Dispatch, useCallback, useEffect, useRef, useState } from 'react';
+import { Button, message } from 'antd';
+import { CloseCircleTwoTone } from '@ant-design/icons';
+import { ActionType } from '@ant-design/pro-table/lib/typing';
 
 export type CategoryDataSourceType = {
-    category: React.Key,
+    category: number,
     desc?: string;
 };
 
@@ -13,157 +15,121 @@ export type ItemDBCategoryProp = {
 }
 
 const ItemDBCategory = ({ dataSource, setDataSource }: ItemDBCategoryProp) => {
-    // const [editableKeys, setEditableRowKeys] = useState<React.Key[]>([]);
-    // const [dataSource, setDataSource] = useState<CategoryDataSourceType[]>([]);
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-    // const [form] = useForm();
-    const [isAddRowModalVisible, setIsAddRowModalVisible] = useState(false);
-    const [curData, setCurData] = useState<CategoryDataSourceType | undefined>(undefined);
+    const listRef = useRef<ActionType | undefined>(undefined);
 
     const onClickDelete = useCallback((record) => {
         setDataSource(dataSource.filter((item) => item.category !== record.category));
+        console.log('delete', record);
     }, [setDataSource, dataSource]);
-
-    // const categoryColumns: ProColumns<CategoryDataSourceType>[] = [
-    //     {
-    //         title: 'category',
-    //         dataIndex: 'category',
-    //         width: 60
-    //     },
-    //     {
-    //         title: 'desc',
-    //         dataIndex: 'desc',
-    //         width: 100
-    //     },
-    //     {
-    //         title: '操作',
-    //         valueType: 'option',
-    //         width: 60,
-    //         render: (text, record, _, action) => [
-    //             <a
-    //                 key='editable'
-    //                 onClick={() => {
-    //                     action?.startEditable?.(record.category);
-    //                 }}
-    //             >
-    //                 编辑
-    //             </a>,
-    //             <a
-    //                 key='delete'
-    //                 onClick={() => {
-    //                     onClickDelete(record);
-    //                 }}
-    //             >
-    //                 删除
-    //             </a>
-    //         ]
-    //     }
-    // ];
-
-    /**
-     * 开始添加
-     */
-    const onClickAddOne = useCallback(() => {
-        setCurData({ category: 1 });
-        setIsAddRowModalVisible(true);
-    }, [setIsAddRowModalVisible, setCurData]);
 
     /**
      * 确认添加
      */
-    const onApplyAddRow = useCallback(() => {
-        if (curData && curData.category && curData.desc) {
-            setIsAddRowModalVisible(false);
-            setCurData(undefined);
+    const onApplyAddRow = async (values: CategoryDataSourceType) => {
+        if (values.category && values.desc) {
+            if (!dataSource.some((value, index) => {
+                return value.category == values.category;
+            })) {
+                let dataSourceT = dataSource.concat();
+                dataSourceT.push({ category: Number(values.category), desc: values.desc });
+                setDataSource(dataSourceT);
+                return true;
+            } else {
+                message.error('category已存在');
+            }
         } else {
             message.error('请填写完整');
         }
-    }, [setIsAddRowModalVisible, setCurData]);
+        return false;
+    };
 
     /**
      * 取消添加
      */
     const onCancelAddRow = useCallback(() => {
-        setCurData(undefined);
-        setIsAddRowModalVisible(false);
-    }, [setIsAddRowModalVisible, setCurData]);
+
+    }, []);
 
     return (
         <div>
-            <ModalForm<{
-                name: string;
-                company: string;
-            }>
-                title="新建表单"
+            <ModalForm<CategoryDataSourceType>
+                title=''
                 trigger={
-                    <Button type="primary">
-                        <PlusOutlined />
-                        新建表单
+                    <Button
+                        type='primary'
+                        style={{
+                            padding: '6px',
+                            width: '100%',
+                            height: '100%'
+                        }}
+                    >
+                        添加
                     </Button>
                 }
                 autoFocusFirstInput
                 modalProps={{
-                    onCancel: () => console.log('run'),
+                    onCancel: onCancelAddRow
                 }}
                 submitTimeout={2000}
-                onFinish={async (values) => {
-                    await waitTime(2000);
-                    console.log(values.name);
-                    message.success('提交成功');
-                    return true;
-                }}
+                onFinish={onApplyAddRow}
             >
+                <ProFormText
+                    width='md'
+                    name='category'
+                    label='类型（category）'
+                    placeholder='请输入category'
+                    rules={[
+                        {
+                            required: true,
+                            type: 'number',
+                            transform: (value: string) => Number(value)
+                        }
+                    ]}
+                />
+                <ProFormText
+                    name='desc'
+                    width='md'
+                    label='提示'
+                    rules={[{ required: true, type: 'string' }]}
+                    placeholder='请输入提示'
+                />
             </ModalForm>
-            <Modal title='Basic Modal' visible={isAddRowModalVisible} onOk={onApplyAddRow} onCancel={onCancelAddRow}>
-                <ProForm<{
-                    name: string;
-                    company?: string;
-                    useMode?: string;
-                }>
-                    wrapperCol={{ span: 14 }}
-                    onFinish={async (values) => {
-                        // await waitTime(2000);
-                        // console.log(values);
-                        // message.success('提交成功');
-                    }}
-                >
-                    <ProFormText
-                        width='md'
-                        name='category'
-                        label='类型（category）'
-                        placeholder='请输入category'
-                    />
-                    <ProFormText
-                        name='desc'
-                        width='md'
-                        label='提示'
-                        placeholder='请输入提示'
-                    />
-                </ProForm>
-            </Modal>
-            <Button
-                type='primary'
-                style={{
-                    padding: '6px',
-                    width: '100%',
-                    height: '100%'
-                }}
-                onClick={onClickAddOne}
-            >
-                添加
-            </Button>
             <ProList<CategoryDataSourceType>
-                // columns={categoryColumns}
-                headerTitle='道具类型'
-                rowKey='id'
+                headerTitle='基础列表'
+                rowKey='category'
                 pagination={false}
-                toolBarRender={false}
+                showActions='hover'
                 tableAlertRender={false}
                 dataSource={dataSource}
+                actionRef={listRef}
+                metas={{
+                    title: {
+                        dataIndex: 'category'
+                    },
+                    description: {
+                        dataIndex: 'desc'
+                    },
+                    actions: {
+                        render: (dom, entity, index, action) => {
+                            return [
+                                <Button
+                                    key={'delete'}
+                                    type='primary'
+                                    icon={<CloseCircleTwoTone />}
+                                    onClick={() => onClickDelete(entity)}
+                                ></Button>
+                            ];
+                        }
+                    }
+                }}
                 rowSelection={{
                     type: 'radio',
-                    selectedRowKeys,
-                    onChange: setSelectedRowKeys,
+                    selectedRowKeys: selectedRowKeys,
+                    onChange: (value) => {
+                        setSelectedRowKeys(value);
+                        console.log(value);
+                    },
                     renderCell: (value, record, index, originNode) => {
                         return undefined;
                     },
@@ -173,7 +139,7 @@ const ItemDBCategory = ({ dataSource, setDataSource }: ItemDBCategoryProp) => {
                     return {
                         onClick: event => {
                             if (record.category && !!record.desc) {
-                                setSelectedRowKeys([record.id]);
+                                setSelectedRowKeys([record.category]);
                             }
                         },
                         onDoubleClick: event => {
