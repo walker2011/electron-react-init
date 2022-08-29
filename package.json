@@ -169,7 +169,8 @@
         "webpack-merge": "^5.8.0"
     },
     "dependencies": {
-        "antd": "^4.19.3",
+        "@ant-design/pro-components": "^1.1.20",
+        "antd": "^4.20.0",
         "classnames": "^2.3.1",
         "electron-debug": "^3.2.0",
         "electron-log": "^4.4.6",
